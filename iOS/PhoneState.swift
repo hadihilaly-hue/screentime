@@ -101,10 +101,16 @@ final class PhoneState: ObservableObject {
         return block != nil
     }
 
-    func appClosed() {
+    /// Ends the open session. A close for a different app than the one open is a late event and is ignored.
+    func appClosed(_ rawName: String? = nil) {
         reload()
-        endSession(at: Date())
         lastEvent = Date()
+        let key = rawName.map(Self.key(for:)) ?? ""
+        if !key.isEmpty, let session = openSession, session.app != key {
+            saveRuntime()
+            return
+        }
+        endSession(at: Date())
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
         saveRuntime()
     }

@@ -20,11 +20,18 @@ struct LogAppOpenedIntent: AppIntent {
 
 struct LogAppClosedIntent: AppIntent {
     static var title: LocalizedStringResource = "Log App Closed"
-    static var description = IntentDescription("Tells Screentime you left the app you were using.")
+    static var description = IntentDescription("Tells Screentime you left an app.")
+
+    @Parameter(title: "App name", description: "The same name used in Log App Opened, e.g. Instagram")
+    var appName: String?
+
+    static var parameterSummary: some ParameterSummary {
+        Summary("Log that \(\.$appName) closed")
+    }
 
     @MainActor
     func perform() async throws -> some IntentResult {
-        PhoneState.shared.appClosed()
+        PhoneState.shared.appClosed(appName)
         return .result()
     }
 }

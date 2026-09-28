@@ -47,7 +47,7 @@ A personal screen time tracker and limiter for **Mac** and **iPhone**. Everythin
 Apple only lets apps read real Screen Time data through the Family Controls entitlement, and that requires a paid developer account. Screentime uses Shortcuts instead:
 
 - **"When Instagram is opened"** runs `Log App Opened (Instagram)`. That action returns `true` if Instagram is over its limit or inside a focus schedule, and the automation then opens Screentime's *Time's Up* screen.
-- **"When any tracked app is closed"** runs `Log App Closed`.
+- **"When Instagram is closed"** runs `Log App Closed (Instagram)`. Each app gets its own close automation. When you jump straight from one app to another, the first app's close event can arrive after the second app's open event, and the app name lets Screentime ignore that late event.
 
 The time between those two events counts as usage. Each visit is capped (45 min by default, adjustable) in case a "closed" event is missed. While you're in an app, Screentime schedules a notification for the moment its limit runs out.
 

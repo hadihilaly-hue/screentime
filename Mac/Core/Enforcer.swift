@@ -45,8 +45,11 @@ final class Enforcer {
             }
             return
         }
-        guard let activity else { return }
-        if prefs.trackWebsites, BrowserInspector.isBrowser(activity.appID), !state.browser.isFresh(activity.appID) { return }
+        guard var activity else { return }
+        if prefs.trackWebsites, BrowserInspector.isBrowser(activity.appID), !state.browser.isFresh(activity.appID) {
+            activity.site = nil
+            activity.category = state.catalog.category(for: activity.appID, overrides: state.config.categoryOverrides)
+        }
         if let reason = blockReason(for: activity, now: now, warn: true) { block(reason) }
     }
 
