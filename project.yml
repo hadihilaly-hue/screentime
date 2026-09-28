@@ -1,0 +1,55 @@
+name: Screentime
+options:
+  bundleIdPrefix: com.hadihilaly
+  deploymentTarget:
+    macOS: "13.0"
+    iOS: "17.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+targets:
+  ScreentimeMac:
+    type: application
+    platform: macOS
+    sources: [Mac, Shared]
+    scheme: {}
+    info:
+      path: Mac/Info.plist
+      properties:
+        CFBundleDisplayName: Screentime
+        LSUIElement: true
+        LSApplicationCategoryType: public.app-category.productivity
+        NSAppleEventsUsageDescription: Screentime reads the address of your current browser tab to track time per website, and closes the tab when a website's limit is up.
+    entitlements:
+      path: Mac/Screentime.entitlements
+      properties:
+        com.apple.security.app-sandbox: false
+        com.apple.security.automation.apple-events: true
+    settings:
+      base:
+        PRODUCT_NAME: Screentime
+        PRODUCT_BUNDLE_IDENTIFIER: com.hadihilaly.screentime.mac
+        ENABLE_HARDENED_RUNTIME: YES
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGN_IDENTITY: "-"
+        DEVELOPMENT_TEAM: ""
+  ScreentimePhone:
+    type: application
+    platform: iOS
+    sources: [iOS, Shared]
+    scheme: {}
+    info:
+      path: iOS/Info.plist
+      properties:
+        CFBundleDisplayName: Screentime
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+    settings:
+      base:
+        PRODUCT_NAME: Screentime
+        PRODUCT_BUNDLE_IDENTIFIER: com.hadihilaly.screentime.phone
+        TARGETED_DEVICE_FAMILY: "1"
+        CODE_SIGN_STYLE: Automatic
