@@ -15,6 +15,7 @@ targets:
     type: application
     platform: macOS
     sources: [Mac, Shared]
+    scheme: {}
     info:
       path: Mac/Info.plist
       properties:
@@ -39,6 +40,7 @@ targets:
     type: application
     platform: iOS
     sources: [iOS, Shared]
+    scheme: {}
     info:
       path: iOS/Info.plist
       properties:
