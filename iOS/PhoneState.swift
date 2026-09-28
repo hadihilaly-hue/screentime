@@ -26,6 +26,7 @@ final class PhoneState: ObservableObject {
         var session: OpenSession?
         var snoozedUntil: [String: Date] = [:]
         var pendingBlock: PhoneBlock?
+        var lastEvent: Date?
     }
 
     @Published private(set) var today: DayUsage
@@ -89,6 +90,7 @@ final class PhoneState: ObservableObject {
         openSession = OpenSession(app: key, name: name, start: now)
         lastEvent = now
 
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
         let block = evaluate(key: key, name: name, now: now)
         pendingBlock = block
         if block == nil { scheduleLimitAlerts(key: key, name: name, now: now) }
@@ -217,12 +219,14 @@ final class PhoneState: ObservableObject {
     private func loadRuntime() {
         let runtime = store.read(Runtime.self, named: Self.runtimeFile) ?? Runtime()
         openSession = runtime.session
+        lastEvent = runtime.lastEvent
         snoozedUntil = runtime.snoozedUntil.filter { $0.value > Date() }
         if runtime.pendingBlock != pendingBlock { pendingBlock = runtime.pendingBlock }
     }
 
     private func saveRuntime() {
-        store.write(Runtime(session: openSession, snoozedUntil: snoozedUntil, pendingBlock: pendingBlock),
+        store.write(Runtime(session: openSession, snoozedUntil: snoozedUntil, pendingBlock: pendingBlock,
+                            lastEvent: lastEvent),
                     named: Self.runtimeFile)
     }
 }

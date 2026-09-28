@@ -48,6 +48,7 @@ final class AppState: ObservableObject {
         today = store.loadDay(DayKey.key(for: Date()))
         config = store.loadConfig()
         enforcer.state = self
+        browser.onUpdate = { [weak self] in self?.tick() }
         startObserving()
         timer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.tick() }
@@ -105,14 +106,14 @@ final class AppState: ObservableObject {
 
     func tick() {
         let now = Date()
+        if let activity = lastActivity {
+            let elapsed = min(now.timeIntervalSince(lastSampleDate), 10)
+            if elapsed > 0 { record(activity, seconds: elapsed, at: lastSampleDate) }
+        }
         if DayKey.key(for: now) != today.day {
             save()
             today = store.loadDay(DayKey.key(for: now))
             enforcer.resetForNewDay()
-        }
-        if let activity = lastActivity {
-            let elapsed = min(now.timeIntervalSince(lastSampleDate), 10)
-            if elapsed > 0 { record(activity, seconds: elapsed, at: now) }
         }
         let activity = sample()
         if let activity, activity.appID != lastActivity?.appID {
