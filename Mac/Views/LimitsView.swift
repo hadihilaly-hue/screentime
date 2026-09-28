@@ -66,6 +66,7 @@ struct LimitEditor: View {
                 TextField("Note to yourself (shown when time's up)", text: $limit.note, axis: .vertical)
                     .lineLimit(2...4)
             }
+            .formStyle(.grouped)
             HStack {
                 if exists {
                     Button("Delete", role: .destructive) {
