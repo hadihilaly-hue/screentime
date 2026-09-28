@@ -15,12 +15,21 @@ final class BrowserInspector {
 
     private let queue = DispatchQueue(label: "screentime.browser-inspector")
     private var domains: [String: String] = [:]
+    private var fetchedAt: [String: Date] = [:]
     private var inFlight: Set<String> = []
+    /// Called on the main thread after each background refresh completes.
+    var onUpdate: (@MainActor () -> Void)?
 
-    /// Last known domain of the browser's active tab; kicks off a refresh in the background.
+    /// Last known domain of the browser's active tab; kicks off a background refresh when it may be stale.
     func domain(for bundleID: String) -> String? {
-        refresh(bundleID)
+        if !isFresh(bundleID) { refresh(bundleID) }
         return domains[bundleID]
+    }
+
+    /// Whether the cached domain was read recently enough to enforce limits on.
+    func isFresh(_ bundleID: String) -> Bool {
+        guard let fetched = fetchedAt[bundleID] else { return false }
+        return Date().timeIntervalSince(fetched) < 2
     }
 
     func closeActiveTab(bundleID: String) {
@@ -28,6 +37,7 @@ final class BrowserInspector {
         let source = "tell application id \"\(bundleID)\" to if (count of windows) > 0 then close \(tab) of front window"
         queue.async { _ = Self.run(source) }
         domains[bundleID] = nil
+        fetchedAt[bundleID] = nil
     }
 
     private func refresh(_ bundleID: String) {
@@ -41,6 +51,8 @@ final class BrowserInspector {
                 guard let self else { return }
                 self.inFlight.remove(bundleID)
                 self.domains[bundleID] = url.flatMap(Self.domain(from:))
+                self.fetchedAt[bundleID] = Date()
+                self.onUpdate?()
             }
         }
     }

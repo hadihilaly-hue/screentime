@@ -107,7 +107,7 @@ struct PhoneWeekView: View {
         let average = active.reduce(0, +) / Double(max(active.count, 1))
         let goalMinutes = Double(state.config.preferences.dailyGoalMinutes)
         let slices = days.flatMap { day -> [Slice] in
-            let label = DayKey.date(for: day.day)?.formatted(.dateTime.weekday(.narrow)) ?? day.day
+            let label = DayKey.date(for: day.day)?.formatted(.dateTime.weekday(.abbreviated)) ?? day.day
             return day.categories.map { Slice(day: day.day, label: label, category: $0.key, minutes: $0.value / 60) }
         }
         NavigationStack {

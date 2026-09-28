@@ -20,6 +20,7 @@ final class Enforcer {
     private var warned: Set<UUID> = []
     private var goalNotified = false
     private var snoozedUntil: [String: Date] = [:]
+    private var shown: BlockReason?
 
     func resetForNewDay() {
         warned.removeAll()
@@ -37,16 +38,29 @@ final class Enforcer {
             notify(title: "Daily goal reached", body: "You've hit \(Formatting.duration(goal)) of screen time today.")
         }
 
-        guard let activity, !overlay.isVisible else { return }
+        if overlay.isVisible {
+            if let shown, blockReason(for: shown.activity, now: now, warn: false) == nil {
+                overlay.dismiss()
+                self.shown = nil
+            }
+            return
+        }
+        guard let activity else { return }
+        if prefs.trackWebsites, BrowserInspector.isBrowser(activity.appID), !state.browser.isFresh(activity.appID) { return }
+        if let reason = blockReason(for: activity, now: now, warn: true) { block(reason) }
+    }
+
+    private func blockReason(for activity: Activity, now: Date, warn: Bool) -> BlockReason? {
+        guard let state else { return nil }
+        let prefs = state.config.preferences
         let targets = activity.targets
 
         for schedule in state.config.schedules where schedule.isActive(at: now) {
             guard let target = schedule.targets.first(where: { targets.contains($0) }) else { continue }
-            block(BlockReason(
+            return BlockReason(
                 title: "\(schedule.name) is on",
                 detail: "\(schedule.name(for: target)) is off-limits until \(Formatting.clock(minuteOfDay: schedule.endMinute)).",
-                note: schedule.note, target: target, activity: activity, canSnooze: false))
-            return
+                note: schedule.note, target: target, activity: activity, canSnooze: false)
         }
 
         for limit in state.config.limits where limit.enabled && targets.contains(limit.target) {
@@ -54,24 +68,25 @@ final class Enforcer {
             let used = state.today.seconds(for: limit.target)
             let cap = Double(limit.minutesPerDay * 60)
             if used >= cap {
-                block(BlockReason(
+                return BlockReason(
                     title: "Time's up for \(limit.displayName)",
                     detail: "You've used \(Formatting.duration(used)) of your \(Formatting.duration(cap)) today.",
-                    note: limit.note, target: limit.target, activity: activity, canSnooze: limit.allowSnooze))
-                return
+                    note: limit.note, target: limit.target, activity: activity, canSnooze: limit.allowSnooze)
             }
             let warnAt = cap - Double(prefs.warnMinutesBefore * 60)
-            if prefs.warnMinutesBefore > 0, used >= warnAt, !warned.contains(limit.id) {
+            if warn, prefs.warnMinutesBefore > 0, used >= warnAt, !warned.contains(limit.id) {
                 warned.insert(limit.id)
                 notify(title: "\(Formatting.duration(cap - used)) left on \(limit.displayName)",
                        body: limit.note.isEmpty ? "Start wrapping up." : limit.note)
             }
         }
+        return nil
     }
 
     private func block(_ reason: BlockReason) {
         guard let state else { return }
         let snoozeMinutes = state.config.preferences.snoozeMinutes
+        shown = reason
         overlay.show(
             reason,
             motto: state.config.preferences.motto,

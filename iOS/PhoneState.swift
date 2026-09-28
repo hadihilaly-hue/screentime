@@ -3,6 +3,7 @@ import UserNotifications
 
 struct PhoneBlock: Codable, Identifiable, Equatable {
     var id = UUID()
+    var createdAt = Date()
     var title: String
     var detail: String
     var note: String
@@ -26,6 +27,7 @@ final class PhoneState: ObservableObject {
         var session: OpenSession?
         var snoozedUntil: [String: Date] = [:]
         var pendingBlock: PhoneBlock?
+        var lastEvent: Date?
     }
 
     @Published private(set) var today: DayUsage
@@ -41,6 +43,8 @@ final class PhoneState: ObservableObject {
     let store = JSONStore()
     private var snoozedUntil: [String: Date] = [:]
     private static let runtimeFile = "runtime.json"
+    /// A Time's Up screen is only shown if Screentime opens shortly after the blocked app did.
+    private static let blockLifetime: TimeInterval = 120
 
     private init() {
         today = store.loadDay(DayKey.key(for: Date()))
@@ -89,6 +93,7 @@ final class PhoneState: ObservableObject {
         openSession = OpenSession(app: key, name: name, start: now)
         lastEvent = now
 
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
         let block = evaluate(key: key, name: name, now: now)
         pendingBlock = block
         if block == nil { scheduleLimitAlerts(key: key, name: name, now: now) }
@@ -217,12 +222,15 @@ final class PhoneState: ObservableObject {
     private func loadRuntime() {
         let runtime = store.read(Runtime.self, named: Self.runtimeFile) ?? Runtime()
         openSession = runtime.session
+        lastEvent = runtime.lastEvent
         snoozedUntil = runtime.snoozedUntil.filter { $0.value > Date() }
-        if runtime.pendingBlock != pendingBlock { pendingBlock = runtime.pendingBlock }
+        let block = runtime.pendingBlock.flatMap { Date().timeIntervalSince($0.createdAt) < Self.blockLifetime ? $0 : nil }
+        if block != pendingBlock { pendingBlock = block }
     }
 
     private func saveRuntime() {
-        store.write(Runtime(session: openSession, snoozedUntil: snoozedUntil, pendingBlock: pendingBlock),
+        store.write(Runtime(session: openSession, snoozedUntil: snoozedUntil, pendingBlock: pendingBlock,
+                            lastEvent: lastEvent),
                     named: Self.runtimeFile)
     }
 }
