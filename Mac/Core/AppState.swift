@@ -106,14 +106,20 @@ final class AppState: ObservableObject {
 
     func tick() {
         let now = Date()
-        if let activity = lastActivity {
-            let elapsed = min(now.timeIntervalSince(lastSampleDate), 10)
-            if elapsed > 0 { record(activity, seconds: elapsed, at: lastSampleDate) }
+        let start = lastSampleDate
+        let end = min(now, start.addingTimeInterval(10))
+        let midnight = Calendar.current.startOfDay(for: end)
+        if let activity = lastActivity, midnight > start {
+            record(activity, seconds: midnight.timeIntervalSince(start), at: start)
         }
         if DayKey.key(for: now) != today.day {
             save()
             today = store.loadDay(DayKey.key(for: now))
             enforcer.resetForNewDay()
+        }
+        if let activity = lastActivity {
+            let from = max(start, midnight)
+            if end > from { record(activity, seconds: end.timeIntervalSince(from), at: from) }
         }
         let activity = sample()
         if let activity, activity.appID != lastActivity?.appID {
@@ -164,7 +170,7 @@ final class AppState: ObservableObject {
             }
             observers.append((center, token))
         }
-        observe(workspace, NSWorkspace.didActivateApplicationNotification) { $0.tick() }
+        observe(workspace, NSWorkspace.didActivateApplicationNotification) { $0.browser.invalidate(); $0.tick() }
         for name in [NSWorkspace.willSleepNotification, NSWorkspace.screensDidSleepNotification] {
             observe(workspace, name) { $0.tick(); $0.screenLocked = true; $0.tick(); $0.save() }
         }
