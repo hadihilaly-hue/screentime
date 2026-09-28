@@ -3,6 +3,7 @@ import UserNotifications
 
 struct PhoneBlock: Codable, Identifiable, Equatable {
     var id = UUID()
+    var createdAt = Date()
     var title: String
     var detail: String
     var note: String
@@ -42,6 +43,8 @@ final class PhoneState: ObservableObject {
     let store = JSONStore()
     private var snoozedUntil: [String: Date] = [:]
     private static let runtimeFile = "runtime.json"
+    /// A Time's Up screen is only shown if Screentime opens shortly after the blocked app did.
+    private static let blockLifetime: TimeInterval = 120
 
     private init() {
         today = store.loadDay(DayKey.key(for: Date()))
@@ -221,7 +224,8 @@ final class PhoneState: ObservableObject {
         openSession = runtime.session
         lastEvent = runtime.lastEvent
         snoozedUntil = runtime.snoozedUntil.filter { $0.value > Date() }
-        if runtime.pendingBlock != pendingBlock { pendingBlock = runtime.pendingBlock }
+        let block = runtime.pendingBlock.flatMap { Date().timeIntervalSince($0.createdAt) < Self.blockLifetime ? $0 : nil }
+        if block != pendingBlock { pendingBlock = block }
     }
 
     private func saveRuntime() {
