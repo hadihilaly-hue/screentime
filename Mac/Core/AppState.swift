@@ -112,7 +112,8 @@ final class AppState: ObservableObject {
     }
 
     func startLockIn(minutes: Int) {
-        guard lockIn == nil else { return }
+        tick()
+        guard config.lockInSession == nil else { return }
         let now = Date()
         config.lockIn.minutes = minutes
         config.lockInSession = LockInSession(start: now, end: now.addingTimeInterval(Double(minutes * 60)))
