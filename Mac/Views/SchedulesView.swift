@@ -32,7 +32,7 @@ struct SchedulesView: View {
         .navigationTitle("Focus Schedules")
         .toolbar {
             Button {
-                editing = FocusSchedule(name: "Homework", weekdays: [1, 2, 3, 4, 5], startMinute: 16 * 60,
+                editing = FocusSchedule(name: "Homework", weekdays: [2, 3, 4, 5, 6], startMinute: 16 * 60,
                                         endMinute: 19 * 60, targets: [])
             } label: { Label("Add schedule", systemImage: "plus") }
         }
@@ -87,6 +87,7 @@ struct ScheduleEditor: View {
                     .disabled(pickTarget.value.isEmpty)
                 }
             }
+            .formStyle(.grouped)
             HStack {
                 if exists {
                     Button("Delete", role: .destructive) {
