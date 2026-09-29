@@ -26,8 +26,13 @@ private struct MenuBarLabel: View {
 
     var body: some View {
         HStack(spacing: 4) {
-            Image(systemName: state.isPaused ? "pause.circle" : "hourglass")
-            Text(Formatting.duration(state.today.total))
+            if let session = state.lockIn {
+                Image(systemName: "lock.fill")
+                Text(Formatting.duration(session.remaining(at: Date())))
+            } else {
+                Image(systemName: state.isPaused ? "pause.circle" : "hourglass")
+                Text(Formatting.duration(state.today.total))
+            }
         }
     }
 }

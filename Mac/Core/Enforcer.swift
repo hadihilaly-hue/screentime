@@ -58,6 +58,16 @@ final class Enforcer {
         let prefs = state.config.preferences
         let targets = activity.targets
 
+        if let session = state.config.activeLockIn(at: now),
+           let target = state.config.lockIn.blockedTarget(in: targets) {
+            let parts = Calendar.current.dateComponents([.hour, .minute], from: session.end)
+            let until = Formatting.clock(minuteOfDay: (parts.hour ?? 0) * 60 + (parts.minute ?? 0))
+            return BlockReason(
+                title: "You're locked in",
+                detail: "\(activity.displayName) is off until \(until). Get back to work: \(Formatting.duration(session.remaining(at: now))) to go.",
+                note: "", target: target, activity: activity, canSnooze: false)
+        }
+
         for schedule in state.config.schedules where schedule.isActive(at: now) {
             guard let target = schedule.targets.first(where: { targets.contains($0) }) else { continue }
             return BlockReason(
@@ -112,7 +122,7 @@ final class Enforcer {
         NSApp.hide(nil)
     }
 
-    private func notify(title: String, body: String) {
+    func notify(title: String, body: String) {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body

@@ -4,8 +4,6 @@ struct SetupView: View {
     @EnvironmentObject var state: PhoneState
     @State private var newApp = ""
 
-    private static let suggestions = ["Instagram", "TikTok", "YouTube", "Snapchat", "X", "Reddit", "Netflix", "Roblox"]
-
     var body: some View {
         NavigationStack {
             List {
@@ -29,7 +27,7 @@ struct SetupView: View {
                     }
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack {
-                            ForEach(Self.suggestions.filter { s in !state.config.trackedApps.contains(s) }, id: \.self) { s in
+                            ForEach(PhoneState.suggestedApps.filter { s in !state.config.trackedApps.contains(s) }, id: \.self) { s in
                                 Button(s) { state.config.trackedApps.append(s) }
                                     .buttonStyle(.bordered)
                                     .controlSize(.small)

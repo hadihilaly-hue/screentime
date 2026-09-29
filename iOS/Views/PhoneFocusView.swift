@@ -7,6 +7,8 @@ struct PhoneFocusView: View {
     var body: some View {
         NavigationStack {
             List {
+                PhoneLockInSection()
+                PhoneEarnSection()
                 if state.config.schedules.isEmpty {
                     Text("Focus schedules block apps or categories during set hours — like homework time or bedtime.")
                         .foregroundStyle(.secondary)
@@ -81,6 +83,7 @@ struct PhoneScheduleEditor: View {
                     PhoneTargetPicker(target: $pickTarget, name: $pickName)
                     Button("Add") {
                         guard !pickTarget.value.isEmpty, !schedule.targets.contains(pickTarget) else { return }
+                        if pickTarget.kind == .app { state.track(pickName) }
                         schedule.targets.append(pickTarget)
                         schedule.targetNames[pickTarget.id] = pickName.isEmpty ? pickTarget.value : pickName
                     }

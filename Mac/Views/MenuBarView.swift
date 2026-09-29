@@ -31,6 +31,7 @@ struct MenuBarView: View {
             } else if state.isPaused {
                 Label("Tracking paused", systemImage: "pause.circle").foregroundStyle(.orange)
             }
+            lockInRow
             Divider()
             let top = Array(today.topApps.prefix(6))
             if top.isEmpty {
@@ -59,10 +60,42 @@ struct MenuBarView: View {
                 .buttonStyle(.borderedProminent)
                 Button(state.isPaused ? "Resume" : "Pause") { state.togglePause() }
                 Spacer()
-                Button("Quit") { state.save(); NSApp.terminate(nil) }
+                if state.lockIn == nil {
+                    Button("Quit") { state.save(); NSApp.terminate(nil) }
+                }
             }
         }
         .padding(16)
         .frame(width: 320)
+    }
+
+    @ViewBuilder private var lockInRow: some View {
+        TimelineView(.periodic(from: .now, by: 1)) { context in
+            if let session = state.config.activeLockIn(at: context.date) {
+                HStack {
+                    Label("Locked in", systemImage: "lock.fill").font(.headline).foregroundStyle(.indigo)
+                    Spacer()
+                    Text(Formatting.countdown(session.remaining(at: context.date)))
+                        .font(.system(.title3, design: .rounded).bold()).monospacedDigit()
+                }
+            } else {
+                HStack {
+                    Button {
+                        state.startLockIn(minutes: state.config.lockIn.minutes)
+                    } label: {
+                        Label("Lock In \(state.config.lockIn.minutes) min", systemImage: "lock.fill")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.indigo)
+                    Menu("Length") {
+                        ForEach([25, 50, 90, 120], id: \.self) { m in
+                            Button("\(m) min") { state.startLockIn(minutes: m) }
+                        }
+                    }
+                    .fixedSize()
+                }
+            }
+        }
     }
 }

@@ -10,7 +10,7 @@ struct Activity: Equatable {
 
     var targets: [Target] {
         var result = [Target(kind: .app, value: appID), Target(kind: .category, value: category)]
-        if let site { result.append(Target(kind: .site, value: site)) }
+        if let site { result += Domains.withParents(site).map { Target(kind: .site, value: $0) } }
         return result
     }
 
@@ -31,6 +31,7 @@ final class AppState: ObservableObject {
     let catalog = AppCatalog()
     let browser = BrowserInspector()
     let enforcer = Enforcer()
+    let music = FocusMusic()
 
     private static let ignoredApps: Set<String> = [
         Bundle.main.bundleIdentifier ?? "com.hadihilaly.screentime.mac",
@@ -47,7 +48,9 @@ final class AppState: ObservableObject {
     init() {
         today = store.loadDay(DayKey.key(for: Date()))
         config = store.loadConfig()
+        if config.lockIn.pairingKey.isEmpty { config.lockIn.pairingKey = UnlockCode.newKey() }
         enforcer.state = self
+        if config.activeLockIn() != nil, config.lockIn.playMusic { music.start(config.lockIn.tracks) }
         browser.onUpdate = { [weak self] in self?.tick() }
         startObserving()
         timer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { [weak self] _ in
@@ -97,6 +100,61 @@ final class AppState: ObservableObject {
         launchAtLogin = SMAppService.mainApp.status == .enabled
     }
 
+    // MARK: - Lock In
+
+    var lockIn: LockInSession? { config.activeLockIn() }
+
+    /// The current unlock code for each Lock In finished today.
+    func todaysCodes(at date: Date) -> [String] {
+        let day = DayKey.key(for: date)
+        let count = config.lockInsEarned[day] ?? 0
+        return (0..<count).map { UnlockCode.code(key: config.lockIn.pairingKey, day: day, index: $0 + 1, at: date) }
+    }
+
+    func startLockIn(minutes: Int) {
+        guard lockIn == nil else { return }
+        let now = Date()
+        config.lockIn.minutes = minutes
+        config.lockInSession = LockInSession(start: now, end: now.addingTimeInterval(Double(minutes * 60)))
+        if config.lockIn.playMusic { music.start(config.lockIn.tracks) }
+        tick()
+    }
+
+    func giveUpLockIn() {
+        config.lockInSession = nil
+        music.stop()
+        tick()
+    }
+
+    func setLockInMusic(_ on: Bool) {
+        config.lockIn.playMusic = on
+        if on, lockIn != nil { music.start(config.lockIn.tracks) } else { music.stop() }
+    }
+
+    private func updateLockIn(from start: Date, to end: Date, activity: Activity?, now: Date) {
+        guard var session = config.lockInSession else { return }
+        if let activity, config.lockIn.blockedTarget(in: activity.targets) == nil {
+            let from = max(start, session.start), to = min(end, session.end)
+            if to > from { session.activeSeconds += to.timeIntervalSince(from) }
+        }
+        guard now >= session.end else {
+            config.lockInSession = session
+            if config.lockIn.playMusic { music.poll() }
+            return
+        }
+        config.lockInSession = nil
+        music.stop()
+        if session.earnedCode {
+            let day = DayKey.key(for: session.end)
+            config.lockInsEarned[day, default: 0] += 1
+            enforcer.notify(title: "Lock In complete",
+                            body: "Nice work. Open Screentime → Lock In for your phone unlock code.")
+        } else {
+            enforcer.notify(title: "Lock In over",
+                            body: "You were away from the computer too much to earn an unlock code.")
+        }
+    }
+
     func save() {
         store.saveDay(today)
         ticksSinceSave = 0
@@ -120,6 +178,7 @@ final class AppState: ObservableObject {
         if let activity = lastActivity, end > split {
             record(activity, seconds: end.timeIntervalSince(split), at: split)
         }
+        updateLockIn(from: start, to: end, activity: lastActivity, now: now)
         let activity = sample()
         if let activity, activity.appID != lastActivity?.appID {
             today.opens[activity.appID, default: 0] += 1
