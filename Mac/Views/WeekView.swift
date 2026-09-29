@@ -21,6 +21,7 @@ struct WeekView: View {
             let label = DayKey.date(for: day.day)?.formatted(.dateTime.weekday(.abbreviated)) ?? day.day
             return day.categories.map { Slice(day: day.day, label: label, category: $0.key, minutes: $0.value / 60) }
         }
+        let categories = Categories.ordered(slices.map(\.category))
         var appTotals: [String: Double] = [:]
         var names: [String: String] = [:]
         for day in days {
@@ -52,6 +53,7 @@ struct WeekView: View {
                                 }
                         }
                     }
+                    .chartForegroundStyleScale(domain: categories, range: categories.map(Categories.color(for:)))
                     .chartYAxisLabel("minutes")
                     .frame(height: 260)
                     .padding(.top, 6)

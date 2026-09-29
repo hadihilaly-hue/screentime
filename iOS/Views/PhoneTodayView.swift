@@ -110,6 +110,7 @@ struct PhoneWeekView: View {
             let label = DayKey.date(for: day.day)?.formatted(.dateTime.weekday(.abbreviated)) ?? day.day
             return day.categories.map { Slice(day: day.day, label: label, category: $0.key, minutes: $0.value / 60) }
         }
+        let categories = Categories.ordered(slices.map(\.category))
         NavigationStack {
             List {
                 Section {
@@ -135,6 +136,7 @@ struct PhoneWeekView: View {
                                 .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
                         }
                     }
+                    .chartForegroundStyleScale(domain: categories, range: categories.map(Categories.color(for:)))
                     .frame(height: 240)
                 }
             }

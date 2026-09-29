@@ -1,4 +1,4 @@
-import Foundation
+import SwiftUI
 
 enum Categories {
     static let all = [
@@ -75,6 +75,19 @@ enum Categories {
         "camera": "Creativity", "photos": "Creativity", "capcut": "Creativity", "vsco": "Creativity",
         "safari": "Utilities", "chrome": "Utilities", "maps": "Utilities", "settings": "Utilities",
     ]
+
+    static let colors: [String: Color] = [
+        "Social": .pink, "Entertainment": .cyan, "Games": .purple, "Communication": .green,
+        "Productivity": .blue, "Education": .orange, "News": .mint, "Shopping": .brown,
+        "Creativity": .indigo, "Utilities": .yellow, "Other": .gray,
+    ]
+
+    static func color(for category: String) -> Color { colors[category] ?? .secondary }
+
+    /// Distinct categories in `Categories.all` order, then any custom ones alphabetically.
+    static func ordered(_ names: some Sequence<String>) -> [String] {
+        Set(names).sorted { (all.firstIndex(of: $0) ?? .max, $0) < (all.firstIndex(of: $1) ?? .max, $1) }
+    }
 
     static func forAppName(_ name: String) -> String? {
         appNames[name.trimmingCharacters(in: .whitespaces).lowercased()]
