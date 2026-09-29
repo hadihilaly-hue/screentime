@@ -108,18 +108,17 @@ final class AppState: ObservableObject {
         let now = Date()
         let start = lastSampleDate
         let end = min(now, start.addingTimeInterval(10))
-        let midnight = Calendar.current.startOfDay(for: end)
-        if let activity = lastActivity, midnight > start {
-            record(activity, seconds: midnight.timeIntervalSince(start), at: start)
+        let split = min(end, Calendar.current.dateInterval(of: .day, for: start)?.end ?? end)
+        if let activity = lastActivity, split > start {
+            record(activity, seconds: split.timeIntervalSince(start), at: start)
         }
         if DayKey.key(for: now) != today.day {
             save()
             today = store.loadDay(DayKey.key(for: now))
             enforcer.resetForNewDay()
         }
-        if let activity = lastActivity {
-            let from = max(start, midnight)
-            if end > from { record(activity, seconds: end.timeIntervalSince(from), at: from) }
+        if let activity = lastActivity, end > split {
+            record(activity, seconds: end.timeIntervalSince(split), at: split)
         }
         let activity = sample()
         if let activity, activity.appID != lastActivity?.appID {
