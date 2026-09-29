@@ -26,6 +26,11 @@ final class BrowserInspector {
         return domains[bundleID]
     }
 
+    /// Marks every cached domain as stale, e.g. after the frontmost app changes.
+    func invalidate() {
+        fetchedAt.removeAll()
+    }
+
     /// Whether the cached domain was read recently enough to enforce limits on.
     func isFresh(_ bundleID: String) -> Bool {
         guard let fetched = fetchedAt[bundleID] else { return false }

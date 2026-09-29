@@ -10,7 +10,7 @@ struct SetupView: View {
         NavigationStack {
             List {
                 Section {
-                    Text("iPhone doesn't let other apps read Screen Time, so Screentime learns what you open from **Shortcuts automations**. Set up two things once, then it runs by itself.")
+                    Text("iPhone doesn't let other apps read Screen Time, so Screentime learns what you open from **Shortcuts automations**. Each tracked app gets two automations, one for opening and one for closing. After that it runs by itself.")
                         .font(.callout)
                 }
 
@@ -48,11 +48,13 @@ struct SetupView: View {
                     Text("Repeat for each app you track.").font(.caption).foregroundStyle(.secondary)
                 }
 
-                Section("3 · One \"closed\" automation for all of them") {
+                Section("3 · One \"closed\" automation per app") {
                     step(1, "Shortcuts → **Automation** → **+** → **App**.")
-                    step(2, "Tap **Choose** and select **every** app you track.")
+                    step(2, "Tap **Choose** and pick the same app → **Done**.")
                     step(3, "Select **Is Closed** only, and **Run Immediately** → **Next**.")
-                    step(4, "**New Blank Automation** → add action **Log App Closed** (Screentime) → **Done**.")
+                    step(4, "**New Blank Automation** → add action **Log App Closed** (Screentime). Type the same app name as its \"opened\" automation → **Done**.")
+                    Text("Repeat for each app you track. The name lets Screentime ignore a late \"closed\" event when you jump straight from one app to another.")
+                        .font(.caption).foregroundStyle(.secondary)
                 }
 
                 Section("Check it works") {
