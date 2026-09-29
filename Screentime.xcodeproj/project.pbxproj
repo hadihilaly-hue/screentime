@@ -8,16 +8,21 @@
 
 /* Begin PBXBuildFile section */
 		02B2699336FDDD37D3280893 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB7D997CF5C6625AD9D8EE37 /* MenuBarView.swift */; };
+		0312C53D3868632C33973332 /* GiveUpSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 819077E08187A5F8ED58B6A5 /* GiveUpSheet.swift */; };
 		0AE1C5ABD704F070BA326555 /* Enforcer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2391F62C5D753480A2B8FF0E /* Enforcer.swift */; };
 		13D347ED71C2926850229DAC /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC84F6A14BCEC1DADD82DEC9 /* DashboardView.swift */; };
 		1ABD391F44E8C5DDE1CF207D /* PhoneFocusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3CC1F5F84943A7E0892E288 /* PhoneFocusView.swift */; };
 		1C99CCF69973D9634FB11ED1 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 969C84C134EF0B1D44544526 /* Models.swift */; };
 		207DB31F190DDBEFF2E83B7A /* PhoneTodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6643C0AC5D8B6ACCF116BA3 /* PhoneTodayView.swift */; };
 		2262BA9FB7DF377529529865 /* LimitsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A731928E408265B048B976 /* LimitsView.swift */; };
+		356057AB297D3FE00DE0700E /* GiveUpSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 819077E08187A5F8ED58B6A5 /* GiveUpSheet.swift */; };
+		3B323BA621D4EC0928C92B96 /* PhoneLockInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCF30E9F1F26C9F1600E729 /* PhoneLockInView.swift */; };
 		439D12F66DA972F513BE4026 /* JSONStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F8C094A54CF386F95BB1CC /* JSONStore.swift */; };
 		4C5F0B00BAAE70A8E2C634CC /* ScreentimeMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00348FD3A28CF23C024DBE84 /* ScreentimeMacApp.swift */; };
+		51F6844FAD67999ADB6BCE40 /* LockInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE2ECB06FD59D2E1FD444898 /* LockInView.swift */; };
 		54861FBC5E158C9D9A94CC5E /* SchedulesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C977C9A145941BB268284701 /* SchedulesView.swift */; };
 		556440688E35BDE104174C77 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4AD65F897F89D789AEEEE86 /* Components.swift */; };
+		5ADDC6D031CE5E9E1E25C189 /* LockIn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DDD4DB9893D41C7E8189AD9 /* LockIn.swift */; };
 		5D42F35D289C069D9DDF3DC6 /* PhoneLimitsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B477E53AEE23887045BA457C /* PhoneLimitsView.swift */; };
 		615F15EB5F749EE8FBDC8FAC /* SystemActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1698C0B8AC6072A17BBD1D1 /* SystemActivity.swift */; };
 		64DA4AF6199B8CA60C2CFBC3 /* BrowserInspector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A11589E69A349547B5AB0D7 /* BrowserInspector.swift */; };
@@ -27,6 +32,7 @@
 		7647DC6664AF8CC9BFEA3F46 /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864AE4D60B27DA913C4866C8 /* TodayView.swift */; };
 		7BB9B351EA20325A02E47C2D /* ScreentimePhoneApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C261E5D7FEFC43EA1FE3260 /* ScreentimePhoneApp.swift */; };
 		8445587A3CE77B038DD5E6CE /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60BF5E1F3317349EB7D0D2E6 /* AppState.swift */; };
+		8769ECDADA6FF0A2C2F3625B /* LockIn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DDD4DB9893D41C7E8189AD9 /* LockIn.swift */; };
 		88355FBFC53830E3C0933C9A /* JSONStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F8C094A54CF386F95BB1CC /* JSONStore.swift */; };
 		A0D9BBA363309EA6712FBA46 /* Categories.swift in Sources */ = {isa = PBXBuildFile; fileRef = B71DD1C0A8D6031243582495 /* Categories.swift */; };
 		A456E8CEEB09139479781A88 /* Categories.swift in Sources */ = {isa = PBXBuildFile; fileRef = B71DD1C0A8D6031243582495 /* Categories.swift */; };
@@ -34,6 +40,7 @@
 		C793B3914A2D04C07607582B /* Intents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8358E9E855748464777D9CDC /* Intents.swift */; };
 		E5603538B5E547DD888A2F8B /* SetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45F8B86D8EE086528746A859 /* SetupView.swift */; };
 		E9D4584EE92B86677F73409C /* AppCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E6000D482FEDEAA24C4F17F /* AppCatalog.swift */; };
+		F6A2D1B221513CCC8B746359 /* FocusMusic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 424536273F107DE0329C5630 /* FocusMusic.swift */; };
 		FD6CFDE43DAF09B5A40F0426 /* PhoneState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175AA3C13B0DC4BD1846338C /* PhoneState.swift */; };
 		FFA81C7D4A6D8B406003A3E8 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 969C84C134EF0B1D44544526 /* Models.swift */; };
 /* End PBXBuildFile section */
@@ -46,6 +53,7 @@
 		2391F62C5D753480A2B8FF0E /* Enforcer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enforcer.swift; sourceTree = "<group>"; };
 		24A731928E408265B048B976 /* LimitsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LimitsView.swift; sourceTree = "<group>"; };
 		309179D73E55D3E07A6C37EB /* ScreentimePhone.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ScreentimePhone.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		424536273F107DE0329C5630 /* FocusMusic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusMusic.swift; sourceTree = "<group>"; };
 		45F8B86D8EE086528746A859 /* SetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupView.swift; sourceTree = "<group>"; };
 		4F39B625DE5C0B58492EEB77 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		55A36E4697BFFA60BB16F2A7 /* Screentime.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Screentime.entitlements; sourceTree = "<group>"; };
@@ -55,6 +63,9 @@
 		68A9CFAB7CBA0C9F58E14EA2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		726100B5C609619CD479DA99 /* WeekView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekView.swift; sourceTree = "<group>"; };
 		7C261E5D7FEFC43EA1FE3260 /* ScreentimePhoneApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreentimePhoneApp.swift; sourceTree = "<group>"; };
+		7DCF30E9F1F26C9F1600E729 /* PhoneLockInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneLockInView.swift; sourceTree = "<group>"; };
+		7DDD4DB9893D41C7E8189AD9 /* LockIn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockIn.swift; sourceTree = "<group>"; };
+		819077E08187A5F8ED58B6A5 /* GiveUpSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiveUpSheet.swift; sourceTree = "<group>"; };
 		8358E9E855748464777D9CDC /* Intents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intents.swift; sourceTree = "<group>"; };
 		864AE4D60B27DA913C4866C8 /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
 		8A11589E69A349547B5AB0D7 /* BrowserInspector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserInspector.swift; sourceTree = "<group>"; };
@@ -64,6 +75,7 @@
 		B71DD1C0A8D6031243582495 /* Categories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Categories.swift; sourceTree = "<group>"; };
 		C977C9A145941BB268284701 /* SchedulesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchedulesView.swift; sourceTree = "<group>"; };
 		CB7D997CF5C6625AD9D8EE37 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
+		CE2ECB06FD59D2E1FD444898 /* LockInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockInView.swift; sourceTree = "<group>"; };
 		D1698C0B8AC6072A17BBD1D1 /* SystemActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemActivity.swift; sourceTree = "<group>"; };
 		D3CC1F5F84943A7E0892E288 /* PhoneFocusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneFocusView.swift; sourceTree = "<group>"; };
 		D4AD65F897F89D789AEEEE86 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
@@ -81,6 +93,7 @@
 				038D88261E7ACE15ADF3F867 /* BlockOverlay.swift */,
 				8A11589E69A349547B5AB0D7 /* BrowserInspector.swift */,
 				2391F62C5D753480A2B8FF0E /* Enforcer.swift */,
+				424536273F107DE0329C5630 /* FocusMusic.swift */,
 				D1698C0B8AC6072A17BBD1D1 /* SystemActivity.swift */,
 			);
 			path = Core;
@@ -90,7 +103,9 @@
 			isa = PBXGroup;
 			children = (
 				B71DD1C0A8D6031243582495 /* Categories.swift */,
+				819077E08187A5F8ED58B6A5 /* GiveUpSheet.swift */,
 				F0F8C094A54CF386F95BB1CC /* JSONStore.swift */,
+				7DDD4DB9893D41C7E8189AD9 /* LockIn.swift */,
 				969C84C134EF0B1D44544526 /* Models.swift */,
 			);
 			path = Shared;
@@ -111,6 +126,7 @@
 			children = (
 				D3CC1F5F84943A7E0892E288 /* PhoneFocusView.swift */,
 				B477E53AEE23887045BA457C /* PhoneLimitsView.swift */,
+				7DCF30E9F1F26C9F1600E729 /* PhoneLockInView.swift */,
 				D6643C0AC5D8B6ACCF116BA3 /* PhoneTodayView.swift */,
 				60D89200BE9B6AD0494B5BA4 /* RootView.swift */,
 				45F8B86D8EE086528746A859 /* SetupView.swift */,
@@ -136,6 +152,7 @@
 				D4AD65F897F89D789AEEEE86 /* Components.swift */,
 				FC84F6A14BCEC1DADD82DEC9 /* DashboardView.swift */,
 				24A731928E408265B048B976 /* LimitsView.swift */,
+				CE2ECB06FD59D2E1FD444898 /* LockInView.swift */,
 				CB7D997CF5C6625AD9D8EE37 /* MenuBarView.swift */,
 				C977C9A145941BB268284701 /* SchedulesView.swift */,
 				5C4986DBA49B9823CC245D20 /* SettingsView.swift */,
@@ -254,8 +271,12 @@
 				556440688E35BDE104174C77 /* Components.swift in Sources */,
 				13D347ED71C2926850229DAC /* DashboardView.swift in Sources */,
 				0AE1C5ABD704F070BA326555 /* Enforcer.swift in Sources */,
+				F6A2D1B221513CCC8B746359 /* FocusMusic.swift in Sources */,
+				0312C53D3868632C33973332 /* GiveUpSheet.swift in Sources */,
 				88355FBFC53830E3C0933C9A /* JSONStore.swift in Sources */,
 				2262BA9FB7DF377529529865 /* LimitsView.swift in Sources */,
+				8769ECDADA6FF0A2C2F3625B /* LockIn.swift in Sources */,
+				51F6844FAD67999ADB6BCE40 /* LockInView.swift in Sources */,
 				02B2699336FDDD37D3280893 /* MenuBarView.swift in Sources */,
 				FFA81C7D4A6D8B406003A3E8 /* Models.swift in Sources */,
 				54861FBC5E158C9D9A94CC5E /* SchedulesView.swift in Sources */,
@@ -272,11 +293,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				A0D9BBA363309EA6712FBA46 /* Categories.swift in Sources */,
+				356057AB297D3FE00DE0700E /* GiveUpSheet.swift in Sources */,
 				C793B3914A2D04C07607582B /* Intents.swift in Sources */,
 				439D12F66DA972F513BE4026 /* JSONStore.swift in Sources */,
+				5ADDC6D031CE5E9E1E25C189 /* LockIn.swift in Sources */,
 				1C99CCF69973D9634FB11ED1 /* Models.swift in Sources */,
 				1ABD391F44E8C5DDE1CF207D /* PhoneFocusView.swift in Sources */,
 				5D42F35D289C069D9DDF3DC6 /* PhoneLimitsView.swift in Sources */,
+				3B323BA621D4EC0928C92B96 /* PhoneLockInView.swift in Sources */,
 				FD6CFDE43DAF09B5A40F0426 /* PhoneState.swift in Sources */,
 				207DB31F190DDBEFF2E83B7A /* PhoneTodayView.swift in Sources */,
 				6BA448929F33CACAA8ABCE70 /* RootView.swift in Sources */,
