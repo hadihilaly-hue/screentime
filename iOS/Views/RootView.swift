@@ -56,6 +56,12 @@ struct TimesUpView: View {
                     Text(state.config.preferences.motto).font(.headline).foregroundStyle(.white.opacity(0.6))
                 }
                 Spacer()
+                if block.needsCode == true {
+                    UnlockCodeField()
+                        .padding(14)
+                        .background(.white, in: RoundedRectangle(cornerRadius: 14))
+                        .foregroundStyle(.black)
+                }
                 Text("Swipe up to go home and do something else.")
                     .font(.footnote).foregroundStyle(.white.opacity(0.6))
                 Button {

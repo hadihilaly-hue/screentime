@@ -12,8 +12,10 @@ A personal screen time tracker and limiter for **Mac** and **iPhone**. Everythin
 | Daily limits per app, website or category | yes, full-screen "Time's up" overlay | yes, full-screen "Time's up" screen plus notifications |
 | Focus schedules (homework, bedtime) | yes | yes |
 | Warnings before a limit, "N more minutes" snooze | yes | yes |
-| Daily goal, hourly and weekly charts, pickups | yes | yes |
+| Daily distraction goal (only Social, Entertainment, Games count, so homework doesn't), hourly and weekly charts, pickups | yes | yes |
 | Personal notes and a motto on block screens | yes | yes |
+| Lock In: timed focus that blocks distractions, loops focus music | yes (Spotify on repeat) | yes (opens Spotify) |
+| Earn your apps: phone apps stay locked until you enter a code from a finished Mac Lock In | issues codes | checks codes |
 
 ## Requirements
 
@@ -50,6 +52,13 @@ Apple only lets apps read real Screen Time data through the Family Controls enti
 - **"When Instagram is closed"** runs `Log App Closed (Instagram)`. Each app gets its own close automation. When you jump straight from one app to another, the first app's close event can arrive after the second app's open event, and the app name lets Screentime ignore that late event.
 
 The time between those two events counts as usage. Each visit is capped (45 min by default, adjustable) in case a "closed" event is missed. While you're in an app, Screentime schedules a notification for the moment its limit runs out.
+
+## Lock In and "Earn your apps"
+
+- **Lock In** (Mac menu bar or Dashboard → Lock In; iPhone Focus tab) blocks the categories you pick (Social, Entertainment and Games by default) plus any extra apps or sites until the timer runs out. It can't be snoozed, quitting Screentime doesn't end it, and giving up early means typing a sentence. On the Mac it loops *Experience* (Ludovico Einaudi) and *Solas* (Jamie Duffy) in the Spotify app; change the songs by pasting Spotify song links.
+- A Mac Lock In counts as finished only if you were active on non-blocked apps for at least 70% of it. Each finished one shows a **6-digit unlock code** on Dashboard → Lock In. The code changes every 5 minutes, each one works for 10 minutes, and each Lock In's code works once.
+- On the iPhone, turn on **Focus → Earn your apps** and type the Mac's pairing key (shown under the codes). From then on, opening a locked app (through its Shortcuts automation) shows *Earn it first* until you type a current code. A code unlocks those apps for 20 minutes.
+- Codes are checked offline with an HMAC of the pairing key, the day and the 5-minute window, so there's no server and the two devices never talk to each other. Both clocks need to be set automatically.
 
 ## Project layout
 

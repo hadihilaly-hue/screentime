@@ -7,24 +7,27 @@ struct PhoneTodayView: View {
 
     var body: some View {
         let today = state.today
-        let goal = Double(state.config.preferences.dailyGoalMinutes * 60)
+        let goal = Double(state.config.preferences.distractionGoalMinutes * 60)
+        let distracted = state.config.distractionSeconds(today)
         NavigationStack {
             List {
                 Section {
                     VStack(alignment: .leading, spacing: 8) {
                         HStack(alignment: .firstTextBaseline) {
-                            Text(Formatting.duration(today.total)).font(.system(size: 40, weight: .bold, design: .rounded))
-                            Text("today").foregroundStyle(.secondary)
+                            Text(Formatting.duration(distracted)).font(.system(size: 40, weight: .bold, design: .rounded))
+                            Text("on distractions").foregroundStyle(.secondary)
                             Spacer()
                             Text("\(today.opens.values.reduce(0, +)) pickups").foregroundStyle(.secondary)
                         }
                         if goal > 0 {
-                            PhoneUsageBar(fraction: today.total / goal, tint: today.total > goal ? .red : .accentColor)
-                            Text(today.total > goal
-                                 ? "\(Formatting.duration(today.total - goal)) over your \(Formatting.duration(goal)) goal"
-                                 : "\(Formatting.duration(goal - today.total)) left in your \(Formatting.duration(goal)) goal")
+                            PhoneUsageBar(fraction: distracted / goal, tint: distracted > goal ? .red : .accentColor)
+                            Text(distracted > goal
+                                 ? "\(Formatting.duration(distracted - goal)) over your \(Formatting.duration(goal)) goal"
+                                 : "\(Formatting.duration(goal - distracted)) left in your \(Formatting.duration(goal)) goal")
                                 .font(.caption).foregroundStyle(.secondary)
                         }
+                        Text("\(Formatting.duration(today.total)) total in tracked apps")
+                            .font(.caption).foregroundStyle(.secondary)
                     }
                     .padding(.vertical, 4)
                 }
@@ -105,7 +108,8 @@ struct PhoneWeekView: View {
         let totals = days.map(\.total)
         let active = totals.filter { $0 > 0 }
         let average = active.reduce(0, +) / Double(max(active.count, 1))
-        let goalMinutes = Double(state.config.preferences.dailyGoalMinutes)
+        let goalMinutes = Double(state.config.preferences.distractionGoalMinutes)
+        let distractions = days.filter { $0.total > 0 }.map(state.config.distractionSeconds)
         let slices = days.flatMap { day -> [Slice] in
             let label = DayKey.date(for: day.day)?.formatted(.dateTime.weekday(.abbreviated)) ?? day.day
             return day.categories.map { Slice(day: day.day, label: label, category: $0.key, minutes: $0.value / 60) }
@@ -122,18 +126,13 @@ struct PhoneWeekView: View {
                         Spacer()
                         VStack(alignment: .trailing) {
                             Text("Under goal").font(.caption).foregroundStyle(.secondary)
-                            Text("\(active.filter { $0 <= goalMinutes * 60 }.count) of \(active.count) days").font(.title3.bold())
+                            Text("\(distractions.filter { $0 <= goalMinutes * 60 }.count) of \(active.count) days").font(.title3.bold())
                         }
                     }
                     Chart {
                         ForEach(slices) { slice in
                             BarMark(x: .value("Day", slice.label), y: .value("Minutes", slice.minutes))
                                 .foregroundStyle(by: .value("Category", slice.category))
-                        }
-                        if goalMinutes > 0 {
-                            RuleMark(y: .value("Goal", goalMinutes))
-                                .foregroundStyle(.red.opacity(0.6))
-                                .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
                         }
                     }
                     .chartForegroundStyleScale(domain: categories, range: categories.map(Categories.color(for:)))

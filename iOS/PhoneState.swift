@@ -10,12 +10,15 @@ struct PhoneBlock: Codable, Identifiable, Equatable {
     var appName: String
     var targetID: String
     var canSnooze: Bool
+    /// Blocked until a Mac Lock In unlock code is entered.
+    var needsCode: Bool? = nil
 }
 
 /// Usage tracking driven by Shortcuts automations ("When Instagram is opened / closed").
 @MainActor
 final class PhoneState: ObservableObject {
     static let shared = PhoneState()
+    static let suggestedApps = ["Instagram", "Snapchat", "YouTube", "TikTok", "X", "Reddit", "Netflix", "Roblox", "Discord"]
 
     struct OpenSession: Codable, Equatable {
         var app: String
@@ -135,6 +138,47 @@ final class PhoneState: ObservableObject {
         pendingBlock = nil
     }
 
+    /// Adds an app to the Setup list so its Shortcuts automations get set up.
+    func track(_ rawName: String) {
+        let name = rawName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty, !config.trackedApps.contains(where: { Self.key(for: $0) == Self.key(for: name) }) else { return }
+        config.trackedApps.append(name)
+    }
+
+    // MARK: - Lock In and unlock codes
+
+    func startLockIn(minutes: Int) {
+        guard config.activeLockIn() == nil else { return }
+        let now = Date()
+        config.lockIn.minutes = minutes
+        config.lockInSession = LockInSession(start: now, end: now.addingTimeInterval(Double(minutes * 60)))
+    }
+
+    func giveUpLockIn() {
+        config.lockInSession = nil
+    }
+
+    var isUnlocked: Bool { (config.unlockedUntil ?? .distantPast) > Date() }
+
+    /// Checks a code from the Mac. Returns an error message, or nil when the apps were unlocked.
+    func redeem(_ code: String) -> String? {
+        reload()
+        let now = Date()
+        let day = DayKey.key(for: now)
+        guard !config.lockIn.pairingKey.isEmpty else { return "Type your Mac's pairing key first." }
+        guard let index = UnlockCode.index(of: code, key: config.lockIn.pairingKey, day: day, at: now) else {
+            return "That code is wrong or expired. Use the one showing on your Mac right now."
+        }
+        let id = "\(day)|\(index)"
+        guard !config.usedCodes.contains(id) else { return "That Lock In's code was already used. Finish another one." }
+        config.usedCodes = config.usedCodes.filter { $0.hasPrefix(day) } + [id]
+        let from = max(now, config.unlockedUntil ?? now)
+        config.unlockedUntil = from.addingTimeInterval(Double(config.lockIn.rewardMinutes * 60))
+        pendingBlock = nil
+        saveRuntime()
+        return nil
+    }
+
     func removeTrackedApp(_ name: String) {
         config.trackedApps.removeAll { $0 == name }
     }
@@ -143,6 +187,19 @@ final class PhoneState: ObservableObject {
 
     private func evaluate(key: String, name: String, now: Date) -> PhoneBlock? {
         let targets = [Target(kind: .app, value: key), Target(kind: .category, value: category(forApp: key, name: name))]
+        if let session = config.activeLockIn(at: now), let target = config.lockIn.blockedTarget(in: targets) {
+            return PhoneBlock(
+                title: "You're locked in",
+                detail: "\(name) is off for \(Formatting.duration(session.remaining(at: now))) more. Get back to work.",
+                note: "", appName: name, targetID: target.id, canSnooze: false)
+        }
+        if config.lockIn.requireCode, (config.unlockedUntil ?? .distantPast) <= now,
+           let target = config.lockIn.blockedTarget(in: targets) {
+            return PhoneBlock(
+                title: "Earn it first",
+                detail: "Finish a Lock In on your Mac, then type the code it shows to get \(config.lockIn.rewardMinutes) minutes of \(name).",
+                note: "", appName: name, targetID: target.id, canSnooze: false, needsCode: true)
+        }
         for schedule in config.schedules where schedule.isActive(at: now) {
             guard let target = schedule.targets.first(where: { targets.contains($0) }) else { continue }
             return PhoneBlock(
@@ -169,6 +226,11 @@ final class PhoneState: ObservableObject {
         center.removeAllPendingNotificationRequests()
         let targets = [Target(kind: .app, value: key), Target(kind: .category, value: category(forApp: key, name: name))]
         let warn = Double(config.preferences.warnMinutesBefore * 60)
+        if config.lockIn.requireCode, let until = config.unlockedUntil, until > now,
+           config.lockIn.blockedTarget(in: targets) != nil {
+            add(center, id: "unlock-up", after: until.timeIntervalSince(now),
+                title: "Your earned time is up", body: "Put \(name) down. Finish another Lock In to earn more.")
+        }
         for limit in config.limits where limit.enabled && targets.contains(limit.target) {
             let remaining = Double(limit.minutesPerDay * 60) - today.seconds(for: limit.target)
             guard remaining > 0 else { continue }
@@ -180,10 +242,13 @@ final class PhoneState: ObservableObject {
                     title: "\(Formatting.duration(warn)) left on \(limit.displayName)", body: "Start wrapping up.")
             }
         }
-        let goal = Double(config.preferences.dailyGoalMinutes * 60)
-        if goal > 0, today.total < goal {
-            add(center, id: "goal", after: goal - today.total,
-                title: "Daily goal reached", body: "You've hit \(Formatting.duration(goal)) of phone time today.")
+        let goal = Double(config.preferences.distractionGoalMinutes * 60)
+        let distracted = config.distractionSeconds(today)
+        if goal > 0, distracted < goal,
+           config.distractionCategories.contains(category(forApp: key, name: name)) {
+            add(center, id: "goal", after: goal - distracted,
+                title: "Distraction goal reached",
+                body: "You've spent \(Formatting.duration(goal)) on \(config.distractionCategories.joined(separator: ", ")) today.")
         }
     }
 

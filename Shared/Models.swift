@@ -58,7 +58,8 @@ struct FocusSchedule: Codable, Identifiable, Equatable {
 }
 
 struct Preferences: Codable, Equatable {
-    var dailyGoalMinutes = 240
+    /// Daily goal for time on distractions (the Lock In blocked categories), not total screen time.
+    var distractionGoalMinutes = 60
     var idleSeconds = 120
     var warnMinutesBefore = 5
     var snoozeMinutes = 5
@@ -72,7 +73,7 @@ struct Preferences: Codable, Equatable {
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         let d = Preferences()
-        dailyGoalMinutes = try c.decodeIfPresent(Int.self, forKey: .dailyGoalMinutes) ?? d.dailyGoalMinutes
+        distractionGoalMinutes = try c.decodeIfPresent(Int.self, forKey: .distractionGoalMinutes) ?? d.distractionGoalMinutes
         idleSeconds = try c.decodeIfPresent(Int.self, forKey: .idleSeconds) ?? d.idleSeconds
         warnMinutesBefore = try c.decodeIfPresent(Int.self, forKey: .warnMinutesBefore) ?? d.warnMinutesBefore
         snoozeMinutes = try c.decodeIfPresent(Int.self, forKey: .snoozeMinutes) ?? d.snoozeMinutes
@@ -91,6 +92,14 @@ struct Config: Codable, Equatable {
     var categoryOverrides: [String: String] = [:]
     /// iPhone only: app names the user has set up Shortcuts automations for.
     var trackedApps: [String] = []
+    var lockIn = LockInSettings()
+    var lockInSession: LockInSession?
+    /// Mac: Lock Ins finished per day ("YYYY-MM-DD" -> count); each one issues an unlock code.
+    var lockInsEarned: [String: Int] = [:]
+    /// iPhone: codes already used ("YYYY-MM-DD|index").
+    var usedCodes: [String] = []
+    /// iPhone: blocked categories are open until this time after entering a code.
+    var unlockedUntil: Date?
 
     init() {}
 
@@ -101,6 +110,21 @@ struct Config: Codable, Equatable {
         preferences = try c.decodeIfPresent(Preferences.self, forKey: .preferences) ?? Preferences()
         categoryOverrides = try c.decodeIfPresent([String: String].self, forKey: .categoryOverrides) ?? [:]
         trackedApps = try c.decodeIfPresent([String].self, forKey: .trackedApps) ?? []
+        lockIn = try c.decodeIfPresent(LockInSettings.self, forKey: .lockIn) ?? LockInSettings()
+        lockInSession = try c.decodeIfPresent(LockInSession.self, forKey: .lockInSession)
+        lockInsEarned = try c.decodeIfPresent([String: Int].self, forKey: .lockInsEarned) ?? [:]
+        usedCodes = try c.decodeIfPresent([String].self, forKey: .usedCodes) ?? []
+        unlockedUntil = try c.decodeIfPresent(Date.self, forKey: .unlockedUntil)
+    }
+
+    /// Social, Entertainment, Games etc.: what the daily goal and Lock In are about.
+    var distractionCategories: [String] { lockIn.blockedCategories }
+
+    func distractionSeconds(_ day: DayUsage) -> Double { day.seconds(inCategories: distractionCategories) }
+
+    func activeLockIn(at now: Date = Date()) -> LockInSession? {
+        guard let session = lockInSession, session.end > now else { return nil }
+        return session
     }
 }
 
@@ -130,10 +154,17 @@ struct DayUsage: Codable, Equatable {
 
     var total: Double { hourly.reduce(0, +) }
 
+    func seconds(inCategories names: [String]) -> Double {
+        names.reduce(0) { $0 + (categories[$1] ?? 0) }
+    }
+
     func seconds(for target: Target) -> Double {
         switch target.kind {
         case .app: return apps[target.value] ?? 0
-        case .site: return sites[target.value] ?? 0
+        case .site:
+            return sites.reduce(0) { total, entry in
+                entry.key == target.value || entry.key.hasSuffix("." + target.value) ? total + entry.value : total
+            }
         case .category: return categories[target.value] ?? 0
         }
     }
@@ -174,6 +205,13 @@ enum Formatting {
         if hours > 0 { return "\(hours)h \(minutes)m" }
         if minutes > 0 { return "\(minutes)m" }
         return total > 0 ? "<1m" : "0m"
+    }
+
+    /// "23:05" or "1:02:09".
+    static func countdown(_ seconds: Double) -> String {
+        let total = max(0, Int(seconds.rounded(.up)))
+        let h = total / 3600, m = (total % 3600) / 60, s = total % 60
+        return h > 0 ? String(format: "%d:%02d:%02d", h, m, s) : String(format: "%d:%02d", m, s)
     }
 
     static func clock(minuteOfDay: Int) -> String {

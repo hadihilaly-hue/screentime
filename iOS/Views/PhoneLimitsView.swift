@@ -70,6 +70,7 @@ struct PhoneLimitEditor: View {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
+                        if limit.target.kind == .app { state.track(limit.displayName) }
                         if let i = state.config.limits.firstIndex(where: { $0.id == limit.id }) {
                             state.config.limits[i] = limit
                         } else {
@@ -98,9 +99,7 @@ struct PhoneTargetPicker: View {
         }
         .pickerStyle(.segmented)
 
-        let options: [(value: String, name: String)] = target.kind == .app
-            ? state.config.trackedApps.map { (PhoneState.key(for: $0), $0) }
-            : Categories.all.map { ($0, $0) }
+        let options = choices
         Picker(target.kind == .app ? "App" : "Category", selection: Binding(
             get: { target.value },
             set: { value in
@@ -110,8 +109,29 @@ struct PhoneTargetPicker: View {
             Text("Choose…").tag("")
             ForEach(options, id: \.value) { Text($0.name).tag($0.value) }
         }
-        if target.kind == .app, state.config.trackedApps.isEmpty {
-            Text("Add apps on the Setup tab first.").font(.caption).foregroundStyle(.secondary)
+        if target.kind == .app {
+            TextField("…or type another app's name", text: Binding(
+                get: { options.contains { $0.value == target.value } ? "" : name },
+                set: { typed in
+                    let trimmed = typed.trimmingCharacters(in: .whitespaces)
+                    target = Target(kind: .app, value: PhoneState.key(for: trimmed))
+                    name = typed
+                }))
+                .textInputAutocapitalization(.words)
+            if !target.value.isEmpty,
+               !state.config.trackedApps.contains(where: { PhoneState.key(for: $0) == target.value }) {
+                Text("After saving, set up this app's two automations on the Setup tab. That's how Screentime knows when you open it.")
+                    .font(.caption).foregroundStyle(.orange)
+            }
         }
+    }
+
+    private var choices: [(value: String, name: String)] {
+        guard target.kind == .app else { return Categories.all.map { ($0, $0) } }
+        var names = state.config.trackedApps
+        for app in PhoneState.suggestedApps where !names.contains(where: { PhoneState.key(for: $0) == PhoneState.key(for: app) }) {
+            names.append(app)
+        }
+        return names.map { (PhoneState.key(for: $0), $0) }
     }
 }

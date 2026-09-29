@@ -4,8 +4,6 @@ struct SetupView: View {
     @EnvironmentObject var state: PhoneState
     @State private var newApp = ""
 
-    private static let suggestions = ["Instagram", "TikTok", "YouTube", "Snapchat", "X", "Reddit", "Netflix", "Roblox"]
-
     var body: some View {
         NavigationStack {
             List {
@@ -29,7 +27,7 @@ struct SetupView: View {
                     }
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack {
-                            ForEach(Self.suggestions.filter { s in !state.config.trackedApps.contains(s) }, id: \.self) { s in
+                            ForEach(PhoneState.suggestedApps.filter { s in !state.config.trackedApps.contains(s) }, id: \.self) { s in
                                 Button(s) { state.config.trackedApps.append(s) }
                                     .buttonStyle(.bordered)
                                     .controlSize(.small)
@@ -103,8 +101,8 @@ struct PhoneSettingsView: View {
         NavigationStack {
             Form {
                 Section("Goals") {
-                    Stepper(value: $state.config.preferences.dailyGoalMinutes, in: 0...960, step: 15) {
-                        Text("Daily goal: \(state.config.preferences.dailyGoalMinutes == 0 ? "off" : Formatting.duration(Double(state.config.preferences.dailyGoalMinutes * 60)))")
+                    Stepper(value: $state.config.preferences.distractionGoalMinutes, in: 0...480, step: 15) {
+                        Text("Distraction goal: \(state.config.preferences.distractionGoalMinutes == 0 ? "off" : Formatting.duration(Double(state.config.preferences.distractionGoalMinutes * 60)))")
                     }
                     TextField("Personal motto (shown on Time's Up)", text: $state.config.preferences.motto)
                 }

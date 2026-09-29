@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct LimitsView: View {
     @EnvironmentObject var state: AppState
@@ -121,7 +122,23 @@ struct TargetPicker: View {
             }
         }
 
+        if target.kind == .app {
+            Button("Choose an app from Applications…") { chooseApp() }
+        }
+
         if target.kind == .site {
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 84), spacing: 6)], alignment: .leading, spacing: 6) {
+                ForEach(LockInSettings.popular, id: \.site) { item in
+                    Button(item.name) {
+                        target = Target(kind: .site, value: item.site)
+                        name = item.name
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(target.value == item.site ? .accentColor : nil)
+                }
+            }
+            Text("Website limits work in Safari, Chrome, Arc, Brave, Edge, Vivaldi and Opera, in every window and every Chrome profile or Google account.")
+                .font(.caption).foregroundStyle(.secondary)
             TextField("…or type a website (e.g. youtube.com)", text: Binding(
                 get: { target.value },
                 set: { value in
@@ -130,5 +147,16 @@ struct TargetPicker: View {
                     name = cleaned
                 }))
         }
+    }
+
+    private func chooseApp() {
+        let panel = NSOpenPanel()
+        panel.directoryURL = URL(fileURLWithPath: "/Applications")
+        panel.allowedContentTypes = [.application]
+        panel.canChooseDirectories = false
+        panel.allowsMultipleSelection = false
+        guard panel.runModal() == .OK, let url = panel.url, let id = Bundle(url: url)?.bundleIdentifier else { return }
+        target = Target(kind: .app, value: id)
+        name = FileManager.default.displayName(atPath: url.path).replacingOccurrences(of: ".app", with: "")
     }
 }

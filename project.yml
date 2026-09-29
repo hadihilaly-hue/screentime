@@ -22,7 +22,7 @@ targets:
         CFBundleDisplayName: Screentime
         LSUIElement: true
         LSApplicationCategoryType: public.app-category.productivity
-        NSAppleEventsUsageDescription: Screentime reads the address of your current browser tab to track time per website, and closes the tab when a website's limit is up.
+        NSAppleEventsUsageDescription: Screentime reads the address of your current browser tab to track time per website, closes the tab when a website's limit is up, and plays your Lock In music in Spotify.
     entitlements:
       path: Mac/Screentime.entitlements
       properties:

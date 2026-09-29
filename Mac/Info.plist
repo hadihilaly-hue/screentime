@@ -25,6 +25,6 @@
 	<key>LSUIElement</key>
 	<true/>
 	<key>NSAppleEventsUsageDescription</key>
-	<string>Screentime reads the address of your current browser tab to track time per website, and closes the tab when a website's limit is up.</string>
+	<string>Screentime reads the address of your current browser tab to track time per website, closes the tab when a website's limit is up, and plays your Lock In music in Spotify.</string>
 </dict>
 </plist>

@@ -7,15 +7,18 @@ struct TodayView: View {
 
     var body: some View {
         let today = state.today
-        let goal = Double(state.config.preferences.dailyGoalMinutes * 60)
+        let goal = Double(state.config.preferences.distractionGoalMinutes * 60)
+        let distracted = state.config.distractionSeconds(today)
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 HStack(spacing: 12) {
-                    StatCard(title: "Screen time", value: Formatting.duration(today.total),
-                             subtitle: goal > 0 ? "Goal \(Formatting.duration(goal))" : nil, systemImage: "clock.fill")
-                    StatCard(title: goal > 0 && today.total > goal ? "Over goal by" : "Left in goal",
-                             value: goal > 0 ? Formatting.duration(abs(goal - today.total)) : "—",
+                    StatCard(title: "Distractions", value: Formatting.duration(distracted),
+                             subtitle: goal > 0 ? "Goal \(Formatting.duration(goal))" : nil, systemImage: "flame.fill")
+                    StatCard(title: goal > 0 && distracted > goal ? "Over goal by" : "Left in goal",
+                             value: goal > 0 ? Formatting.duration(abs(goal - distracted)) : "—",
                              systemImage: "target")
+                    StatCard(title: "Screen time", value: Formatting.duration(today.total),
+                             subtitle: "Homework counts here, not in the goal", systemImage: "clock.fill")
                     StatCard(title: "Most used", value: today.topApps.first.map { today.name(forApp: $0.id) } ?? "—",
                              subtitle: today.topApps.first.map { Formatting.duration($0.seconds) }, systemImage: "star.fill")
                     StatCard(title: "App switches", value: "\(today.opens.values.reduce(0, +))", systemImage: "arrow.left.arrow.right")
