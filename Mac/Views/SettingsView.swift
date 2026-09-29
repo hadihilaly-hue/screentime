@@ -6,9 +6,11 @@ struct SettingsView: View {
     var body: some View {
         Form {
             Section("Goals") {
-                Stepper(value: $state.config.preferences.dailyGoalMinutes, in: 0...960, step: 15) {
-                    Text("Daily screen time goal: \(state.config.preferences.dailyGoalMinutes == 0 ? "off" : Formatting.duration(Double(state.config.preferences.dailyGoalMinutes * 60)))")
+                Stepper(value: $state.config.preferences.distractionGoalMinutes, in: 0...480, step: 15) {
+                    Text("Daily distraction goal: \(state.config.preferences.distractionGoalMinutes == 0 ? "off" : Formatting.duration(Double(state.config.preferences.distractionGoalMinutes * 60)))")
                 }
+                Text("Counts only \(state.config.distractionCategories.joined(separator: ", ")) (change them under Lock In). Homework and other work don't count.")
+                    .font(.caption).foregroundStyle(.secondary)
                 TextField("Personal motto (shown on block screens)", text: $state.config.preferences.motto)
             }
             Section("Limits") {

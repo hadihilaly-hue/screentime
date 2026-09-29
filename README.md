@@ -12,7 +12,7 @@ A personal screen time tracker and limiter for **Mac** and **iPhone**. Everythin
 | Daily limits per app, website or category | yes, full-screen "Time's up" overlay | yes, full-screen "Time's up" screen plus notifications |
 | Focus schedules (homework, bedtime) | yes | yes |
 | Warnings before a limit, "N more minutes" snooze | yes | yes |
-| Daily goal, hourly and weekly charts, pickups | yes | yes |
+| Daily distraction goal (only Social, Entertainment, Games count, so homework doesn't), hourly and weekly charts, pickups | yes | yes |
 | Personal notes and a motto on block screens | yes | yes |
 | Lock In: timed focus that blocks distractions, loops focus music | yes (Spotify on repeat) | yes (opens Spotify) |
 | Earn your apps: phone apps stay locked until you enter a code from a finished Mac Lock In | issues codes | checks codes |

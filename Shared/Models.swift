@@ -58,7 +58,8 @@ struct FocusSchedule: Codable, Identifiable, Equatable {
 }
 
 struct Preferences: Codable, Equatable {
-    var dailyGoalMinutes = 240
+    /// Daily goal for time on distractions (the Lock In blocked categories), not total screen time.
+    var distractionGoalMinutes = 60
     var idleSeconds = 120
     var warnMinutesBefore = 5
     var snoozeMinutes = 5
@@ -72,7 +73,7 @@ struct Preferences: Codable, Equatable {
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         let d = Preferences()
-        dailyGoalMinutes = try c.decodeIfPresent(Int.self, forKey: .dailyGoalMinutes) ?? d.dailyGoalMinutes
+        distractionGoalMinutes = try c.decodeIfPresent(Int.self, forKey: .distractionGoalMinutes) ?? d.distractionGoalMinutes
         idleSeconds = try c.decodeIfPresent(Int.self, forKey: .idleSeconds) ?? d.idleSeconds
         warnMinutesBefore = try c.decodeIfPresent(Int.self, forKey: .warnMinutesBefore) ?? d.warnMinutesBefore
         snoozeMinutes = try c.decodeIfPresent(Int.self, forKey: .snoozeMinutes) ?? d.snoozeMinutes
@@ -116,6 +117,11 @@ struct Config: Codable, Equatable {
         unlockedUntil = try c.decodeIfPresent(Date.self, forKey: .unlockedUntil)
     }
 
+    /// Social, Entertainment, Games etc.: what the daily goal and Lock In are about.
+    var distractionCategories: [String] { lockIn.blockedCategories }
+
+    func distractionSeconds(_ day: DayUsage) -> Double { day.seconds(inCategories: distractionCategories) }
+
     func activeLockIn(at now: Date = Date()) -> LockInSession? {
         guard let session = lockInSession, session.end > now else { return nil }
         return session
@@ -147,6 +153,10 @@ struct DayUsage: Codable, Equatable {
     }
 
     var total: Double { hourly.reduce(0, +) }
+
+    func seconds(inCategories names: [String]) -> Double {
+        names.reduce(0) { $0 + (categories[$1] ?? 0) }
+    }
 
     func seconds(for target: Target) -> Double {
         switch target.kind {

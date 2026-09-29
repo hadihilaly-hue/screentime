@@ -242,10 +242,13 @@ final class PhoneState: ObservableObject {
                     title: "\(Formatting.duration(warn)) left on \(limit.displayName)", body: "Start wrapping up.")
             }
         }
-        let goal = Double(config.preferences.dailyGoalMinutes * 60)
-        if goal > 0, today.total < goal {
-            add(center, id: "goal", after: goal - today.total,
-                title: "Daily goal reached", body: "You've hit \(Formatting.duration(goal)) of phone time today.")
+        let goal = Double(config.preferences.distractionGoalMinutes * 60)
+        let distracted = config.distractionSeconds(today)
+        if goal > 0, distracted < goal,
+           config.distractionCategories.contains(category(forApp: key, name: name)) {
+            add(center, id: "goal", after: goal - distracted,
+                title: "Distraction goal reached",
+                body: "You've spent \(Formatting.duration(goal)) on \(config.distractionCategories.joined(separator: ", ")) today.")
         }
     }
 

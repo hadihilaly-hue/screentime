@@ -32,10 +32,11 @@ final class Enforcer {
         guard let state else { return }
         let prefs = state.config.preferences
 
-        let goal = Double(prefs.dailyGoalMinutes * 60)
-        if goal > 0, !goalNotified, state.today.total >= goal {
+        let goal = Double(prefs.distractionGoalMinutes * 60)
+        if goal > 0, !goalNotified, state.config.distractionSeconds(state.today) >= goal {
             goalNotified = true
-            notify(title: "Daily goal reached", body: "You've hit \(Formatting.duration(goal)) of screen time today.")
+            notify(title: "Distraction goal reached",
+                   body: "You've spent \(Formatting.duration(goal)) on \(state.config.distractionCategories.joined(separator: ", ")) today.")
         }
 
         if overlay.isVisible {

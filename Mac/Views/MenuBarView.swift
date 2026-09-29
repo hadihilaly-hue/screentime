@@ -6,20 +6,23 @@ struct MenuBarView: View {
 
     var body: some View {
         let today = state.today
-        let goal = Double(state.config.preferences.dailyGoalMinutes * 60)
+        let goal = Double(state.config.preferences.distractionGoalMinutes * 60)
+        let distracted = state.config.distractionSeconds(today)
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .firstTextBaseline) {
-                Text(Formatting.duration(today.total))
+                Text(Formatting.duration(distracted))
                     .font(.system(size: 30, weight: .bold, design: .rounded))
-                Text("today").foregroundStyle(.secondary)
+                Text("on distractions").foregroundStyle(.secondary)
                 Spacer()
                 if goal > 0 {
                     Text("goal \(Formatting.duration(goal))").font(.caption).foregroundStyle(.secondary)
                 }
             }
             if goal > 0 {
-                UsageBar(fraction: today.total / goal, tint: today.total > goal ? .red : .accentColor)
+                UsageBar(fraction: distracted / goal, tint: distracted > goal ? .red : .accentColor)
             }
+            Text("\(state.config.distractionCategories.joined(separator: ", ")) · \(Formatting.duration(today.total)) total screen time")
+                .font(.caption).foregroundStyle(.secondary)
             if let current = state.current {
                 HStack(spacing: 8) {
                     AppIcon(bundleID: current.appID, size: 18)

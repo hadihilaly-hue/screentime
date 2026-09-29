@@ -31,7 +31,7 @@ private struct MenuBarLabel: View {
                 Text(Formatting.duration(session.remaining(at: Date())))
             } else {
                 Image(systemName: state.isPaused ? "pause.circle" : "hourglass")
-                Text(Formatting.duration(state.today.total))
+                Text(Formatting.duration(state.config.distractionSeconds(state.today)))
             }
         }
     }

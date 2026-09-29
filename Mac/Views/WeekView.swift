@@ -16,7 +16,8 @@ struct WeekView: View {
         let days = state.history(days: 7)
         let totals = days.map(\.total)
         let average = totals.reduce(0, +) / Double(max(totals.filter { $0 > 0 }.count, 1))
-        let goalMinutes = Double(state.config.preferences.dailyGoalMinutes)
+        let goalMinutes = Double(state.config.preferences.distractionGoalMinutes)
+        let distractions = days.map(state.config.distractionSeconds)
         let slices = days.flatMap { day -> [Slice] in
             let label = DayKey.date(for: day.day)?.formatted(.dateTime.weekday(.abbreviated)) ?? day.day
             return day.categories.map { Slice(day: day.day, label: label, category: $0.key, minutes: $0.value / 60) }
@@ -35,7 +36,10 @@ struct WeekView: View {
                 HStack(spacing: 12) {
                     StatCard(title: "Daily average", value: Formatting.duration(average), systemImage: "chart.line.uptrend.xyaxis")
                     StatCard(title: "This week", value: Formatting.duration(totals.reduce(0, +)), systemImage: "calendar")
-                    StatCard(title: "Days under goal", value: "\(totals.filter { $0 > 0 && $0 <= goalMinutes * 60 }.count) / \(totals.filter { $0 > 0 }.count)",
+                    StatCard(title: "Distractions this week", value: Formatting.duration(distractions.reduce(0, +)),
+                             systemImage: "flame.fill")
+                    StatCard(title: "Days under goal",
+                             value: "\(zip(totals, distractions).filter { $0.0 > 0 && $0.1 <= goalMinutes * 60 }.count) / \(totals.filter { $0 > 0 }.count)",
                              systemImage: "checkmark.seal.fill")
                 }
                 GroupBox("Last 7 days") {
@@ -43,14 +47,6 @@ struct WeekView: View {
                         ForEach(slices) { slice in
                             BarMark(x: .value("Day", slice.label), y: .value("Minutes", slice.minutes))
                                 .foregroundStyle(by: .value("Category", slice.category))
-                        }
-                        if goalMinutes > 0 {
-                            RuleMark(y: .value("Goal", goalMinutes))
-                                .foregroundStyle(.red.opacity(0.6))
-                                .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
-                                .annotation(position: .top, alignment: .leading) {
-                                    Text("goal").font(.caption2).foregroundStyle(.red)
-                                }
                         }
                     }
                     .chartForegroundStyleScale(domain: categories, range: categories.map(Categories.color(for:)))

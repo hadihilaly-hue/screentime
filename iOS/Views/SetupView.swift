@@ -101,8 +101,8 @@ struct PhoneSettingsView: View {
         NavigationStack {
             Form {
                 Section("Goals") {
-                    Stepper(value: $state.config.preferences.dailyGoalMinutes, in: 0...960, step: 15) {
-                        Text("Daily goal: \(state.config.preferences.dailyGoalMinutes == 0 ? "off" : Formatting.duration(Double(state.config.preferences.dailyGoalMinutes * 60)))")
+                    Stepper(value: $state.config.preferences.distractionGoalMinutes, in: 0...480, step: 15) {
+                        Text("Distraction goal: \(state.config.preferences.distractionGoalMinutes == 0 ? "off" : Formatting.duration(Double(state.config.preferences.distractionGoalMinutes * 60)))")
                     }
                     TextField("Personal motto (shown on Time's Up)", text: $state.config.preferences.motto)
                 }
